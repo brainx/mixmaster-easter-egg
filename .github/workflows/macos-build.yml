@@ -1,0 +1,28 @@
+# MODERNIZED-2026 — see MODERNIZATION.md
+name: macOS build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install openssl@3 ncurses
+          brew install --build-from-source pcre || brew install pcre
+
+      - name: Build
+        run: ./scripts/build-macos.sh
+
+      - name: Verify binaries
+        run: |
+          bin/mixmaster --version
+          bin/mixremailer --version
+          SETUP_FORCE_CFG=1 ./scripts/setup-mixdir.sh
+          MIXPATH="$PWD/Mix" bin/mixremailer -M

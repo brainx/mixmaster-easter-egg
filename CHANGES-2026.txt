@@ -1,0 +1,47 @@
+Mixmaster 3.0 — files touched in 2026 modernization
+=====================================================
+Search markers in each file: MODERNIZED-2026 (patched) or NEW-2026 (new module)
+Full details: MODERNIZATION.md
+
+--- Patched vintage C (MODERNIZED-2026) ---
+Src/config.h
+Src/crypto.h
+Src/crypto.c
+Src/pgpdata.c
+Src/pgpget.c
+Src/pgpcreat.c
+Src/random.c
+Src/pool.c
+Src/rem.c
+Src/main.c
+Src/Makefile.in
+Src/parsedate.tab.c
+
+--- New remailer module (NEW-2026) ---
+Src/remailer/remailer.h
+Src/remailer/remailer_dispatch.c
+Src/remailer/remailer_admin.c
+Src/remailer/remailer_server.c
+Src/remailer/mixremailer.c
+Src/remailer/ARCHITECTURE.md
+
+--- Scripts (MODERNIZED-2026) ---
+scripts/build-macos.sh
+scripts/setup-mixdir.sh
+scripts/start-mixmaster.sh
+scripts/start-remailer.sh
+
+--- Build / CI (MODERNIZED-2026) ---
+Makefile
+.github/workflows/macos-build.yml
+
+--- Docs & assets (2026) ---
+README.md
+MODERNIZATION.md
+CHANGES-2026.txt
+EASTER_EGG.md
+LICENSE
+assets/favicon.svg
+mixmaster.1
+
+--- Everything else = vintage Mixmaster 3.0 (2008) ---

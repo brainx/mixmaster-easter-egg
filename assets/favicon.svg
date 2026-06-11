@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Mixmaster">
+  <rect width="32" height="32" fill="#000000"/>
+  <circle cx="7" cy="16" r="2.5" fill="#ffffff"/>
+  <circle cx="16" cy="16" r="2.5" fill="#ffffff"/>
+  <circle cx="25" cy="16" r="2.5" fill="#ffffff"/>
+  <path fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" d="M9.5 16h3M19.5 16h3"/>
+  <path fill="#ffffff" d="M14 10h1.2l1.8 3.2L18.8 10H20v6h-1.3v-3.4L17.2 16h-1.1l-1.5-3.4V16H14V10z"/>
+</svg>
