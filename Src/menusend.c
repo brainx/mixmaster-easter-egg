@@ -432,8 +432,13 @@ redraw:
 	    if (type == 'p' || type == 'f') {
 	      if (strchr(NEWS, '@')) {
 		/*  NOT_IMPLEMENTED; */
-	      } else
+	      } else {
 		f = openpipe(NEWS);
+		if (f != NULL) {
+		  buf_write(msg, f);
+		  closepipe(f);
+		}
+	      }
 	    } else {
 	      if (NAME[0]) {
 		buf_sets(tmp, NAME);
