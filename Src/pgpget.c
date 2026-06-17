@@ -442,7 +442,7 @@ static int pgp_3desdecrypt(BUFFER *in, BUFFER *out, BUFFER *key, int mdc)
     memcpy(iv, in->data + 2, 6);
     n = 0;
   }
-  des_ede3_cfb64_encrypt(in->data + 10 + mdc, out->data, in->length - 10 + mdc, &ks1,
+  des_ede3_cfb64_encrypt(in->data + 10 + mdc, out->data, in->length - 10 - mdc, &ks1,
 			 &ks2, &ks3, &iv, &n, DECRYPT);
   if (mdc) {
     if (out->length > 22) {

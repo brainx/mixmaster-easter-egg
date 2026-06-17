@@ -290,7 +290,7 @@ static int download_list() {
 
   clear();
   standout();
-  printw(ALLPINGERSURL);
+  printw("%s", ALLPINGERSURL);
   standend();
 
   mvprintw(3,0,"downloading %s...", ALLPINGERSURL);
