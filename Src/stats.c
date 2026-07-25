@@ -207,8 +207,12 @@ int stats(BUFFER *b)
     }
     if ((today - havestats) / SECONDSPERDAY >= 1)
       buf_appends(b, "\nNumber of messages per day:\n");
-    for ((i = (today - havestats) / SECONDSPERDAY) > 79 ? 79 : i;
-	 i >= 1; i--) {
+    /* havestats may predate the 80-day window covered by msg[]/pool[], so this
+       clamp is load-bearing: without it the loop below reads past both arrays. */
+    i = (today - havestats) / SECONDSPERDAY;
+    if (i > 79)
+      i = 79;
+    for (; i >= 1; i--) {
       t = now - i * SECONDSPERDAY;
       gt = gmtime(&t);
       strftime(line, LINELEN, "%d %b: ", gt);
