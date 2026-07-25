@@ -71,8 +71,13 @@ int main(int argc, char *argv[])
         maintain = 1;
       else if (streq(p, "daemon"))
         daemon = 1;
-      else if (streq(p, "no-detach"))
+      else if (streq(p, "no-detach")) {
+        /* documented as "daemon mode, keep terminal attached", so it has to
+           imply --daemon; on its own it used to fall through to the usage
+           screen and exit 0 */
         nodetach = 1;
+        daemon = 1;
+      }
       else if (streq(p, "generate-key"))
         keygen = 2;
       else if (streq(p, "update-keys"))

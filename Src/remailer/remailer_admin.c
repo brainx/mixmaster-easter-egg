@@ -58,10 +58,35 @@ end:
   return (err);
 }
 
+static int blockrequest_start(BUFFER *line)
+/* If `line` starts (after optional leading whitespace) with "destination-block",
+   leave line->ptr on the "block" token and return 1, else return 0.
+
+   Anchoring is deliberate. The unanchored substring search this replaced matched
+   the phrase anywhere in the body, so quoting or forwarding the remailer's own
+   help text -- which documents the destination-block command -- was enough to
+   trip AUTOBLOCK and block the sender's own address. It also walked line->ptr
+   forward looking for "block" with no bound, relying on the outer search to
+   guarantee a hit. */
+{
+  int i = 0;
+  const int dlen = 12;		/* strlen("destination-") */
+
+  while (i < line->length && (line->data[i] == ' ' || line->data[i] == '\t'))
+    i++;
+  if (!strileft((char *) line->data + i, "destination-"))
+    return (0);
+  if (!strileft((char *) line->data + i + dlen, "block"))
+    return (0);
+  line->ptr = i + dlen;
+  return (1);
+}
+
 int remailer_blockrequest(BUFFER *message)
 {
   int request = 0, num, i;
   BUFFER *from, *line, *field, *content, *addr, *remailer_addr, *copy_addr;
+  BUFFER *scan;
   REMAILER remailer[MAXREM];
   FILE *f;
   char *destblklst = (char *)malloc(strlen(DESTBLOCK) + 1);
@@ -74,28 +99,35 @@ int remailer_blockrequest(BUFFER *message)
   addr = buf_new();
   remailer_addr = buf_new();
   copy_addr = buf_new();
+  scan = buf_new();
 
   if (destblklst == NULL) {
     errlog(ERRORMSG, "Can't malloc %n bytes for destblklst.\n", strlen(DESTBLOCK) + 1);
     goto end;
   }
 
+  /* A request may arrive in the Subject or in the body, so scan both. This used
+     to append the subject onto `message` itself, which meant the copy handed to
+     logmail() by the caller was archived with its own subject duplicated at the
+     end. Build a scratch buffer instead and leave `message` untouched. */
   buf_rewind(message);
   while (buf_getheader(message, field, content) == 0)
     if (bufieq(field, "from"))
       buf_set(from, content);
-    else if (bufieq(field, "subject"))
-      buf_cat(message, content);
+    else if (bufieq(field, "subject")) {
+      buf_cat(scan, content);
+      buf_nl(scan);
+    }
+  buf_rest(scan, message);	/* message->ptr now sits at the body */
+  buf_rewind(scan);
 
-  while (buf_getline(message, line) != -1)
-    if (bufifind(line, "destination-block")) {
+  while (buf_getline(scan, line) != -1)
+    if (blockrequest_start(line)) {
       buf_clear(addr);
       request = 1;
       {
         int c = 0;
 
-        while (!strileft(line->data + line->ptr, "block"))
-          line->ptr++;
         while (c != ' ' && c != -1)
           c = tolower(buf_getc(line));
         while (c == ' ')
@@ -179,6 +211,7 @@ end:
   buf_free(addr);
   buf_free(remailer_addr);
   buf_free(copy_addr);
+  buf_free(scan);
 
   return (request);
 }

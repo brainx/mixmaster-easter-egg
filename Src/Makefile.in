@@ -63,17 +63,40 @@ winmix: winmenu.res #winmix.exe
 winmenu.o:	winmenu.rc winmenu.h
 	windres winmenu.rc winmenu.o
 
-remailer:	$(OBJ) $(NOMENUOBJ) remailer.o $(REM_OBJ) $(LIBS)
-	$(CC) $(OBJ) $(NOMENUOBJ) remailer.o $(REM_OBJ) $(LIBS) $(LDFLAGS) -o remailer
+# Vintage standalone remailer binary from remailer.c, superseded by mixremailer.
+# Renamed from `remailer`: the 2026 refactor added the Src/remailer/ directory, so
+# make saw that directory as the target and reported "up to date" without ever
+# linking anything.
+remailer-legacy:	$(OBJ) $(NOMENUOBJ) remailer.o $(REM_OBJ) $(LIBS)
+	$(CC) $(OBJ) $(NOMENUOBJ) remailer.o $(REM_OBJ) $(LIBS) $(LDFLAGS) -o remailer-legacy
 
 mpgp:	$(OBJ) $(NOMENUOBJ) mpgp.o $(REM_OBJ) $(LIBS)
 	$(CC) $(OBJ) $(NOMENUOBJ) mpgp.o $(REM_OBJ) $(LIBS) $(LDFLAGS) -o mpgp
 
-test:	$(OBJ) test.o $(NOMENUOBJ) $(REM_OBJ) $(LIBS)
-	$(CC) $(OBJ) test.o $(NOMENUOBJ) $(REM_OBJ) $(LIBS) $(LDFLAGS) -o test
+# Tests link the real objects, so they exercise production code rather than a
+# copy of it. NEW-2026 -- see FIXPLAN.md (F12).
+TESTS = tests/test-parse_yearmonthday tests/test-crypto-keys
+TESTOBJ = $(OBJ) $(NOMENUOBJ) $(REM_OBJ)
+
+tests/test-parse_yearmonthday: tests/test-parse_yearmonthday.o $(TESTOBJ) $(LIBS)
+	$(CC) tests/test-parse_yearmonthday.o $(TESTOBJ) $(LIBS) $(LDFLAGS) -o $@
+
+tests/test-crypto-keys: tests/test-crypto-keys.o $(TESTOBJ) $(LIBS)
+	$(CC) tests/test-crypto-keys.o $(TESTOBJ) $(LIBS) $(LDFLAGS) -o $@
+
+tests:	$(TESTS)
+
+check:	$(TESTS)
+	@fail=0; for t in $(TESTS); do \
+	  echo "=== $$t ==="; ./$$t || fail=1; \
+	done; \
+	if [ $$fail -ne 0 ]; then echo "FAILED"; exit 1; fi; \
+	echo "All tests passed."
+
+.PHONY: all tests check clean allclean distclean ci
 
 clean:
-	-rm -f *.o remailer/*.o *.a *.res *~ mixmaster mixremailer mix *.exe remailer test mpgp core gmon.out
+	-rm -f *.o remailer/*.o tests/*.o *.a *.res *~ mixmaster mixremailer remailer-legacy mix *.exe mpgp core gmon.out $(TESTS)
 
 allclean: clean
 	-rm -f Makefile
