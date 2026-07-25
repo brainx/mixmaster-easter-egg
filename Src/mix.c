@@ -1121,7 +1121,7 @@ int mix_daemon(void)
 {
   long t, slept;
   t = SENDPOOLTIME;
-  if (MAILINTIME < t && (MAILIN != NULL && MAILIN[0] != '\0'))
+  if (MAILINTIME < t && MAILIN[0] != '\0')
     t = MAILINTIME;
 #ifdef USE_SOCK
   if (POP3TIME < t)
@@ -1139,7 +1139,7 @@ int mix_daemon(void)
       rereadconfig = 0;
       mix_config();
       t = SENDPOOLTIME;
-      if (MAILINTIME < t && (MAILIN != NULL && MAILIN[0] != '\0'))
+      if (MAILINTIME < t && MAILIN[0] != '\0')
 	t = MAILINTIME;
 #ifdef USE_SOCK
       if (POP3TIME < t)

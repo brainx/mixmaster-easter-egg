@@ -14,9 +14,14 @@ DEF = %DEF -DUSE_SOCK %MIXDIR
 LIBS = %LIBS
 LDFLAGS = %LDFLAGS
 
-OPT = -g -Wall
-# OPT = -g -pg -Wall -DDEBUG
-# OPT = -O2 -Wall
+# -Wno-pointer-sign / -Wno-deprecated-declarations: the vintage tree mixes byte*
+# (unsigned char*) with char* throughout, and uses OpenSSL's low-level DES/RSA
+# API that OpenSSL 3 deprecates wholesale. Both are inherent to the 2008 code and
+# produced ~250 warnings that buried the handful worth reading.
+WARN = -Wall -Wno-pointer-sign -Wno-deprecated-declarations
+OPT = -g $(WARN)
+# OPT = -g -pg $(WARN) -DDEBUG
+# OPT = -O2 $(WARN)
 
 CFLAGS = $(INC) $(DEF) $(OPT)
 CC = gcc

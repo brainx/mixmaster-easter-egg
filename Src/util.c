@@ -121,7 +121,7 @@ int mixfile(char *path, const char *name)
     strcatn(path, name + 1, PATHMAX);
   } else
 #endif /* POSIX */
-  if (name[0] == DIRSEP || (isalpha(name[0]) && name[1] == ':') || MIXDIR == NULL) {
+  if (name[0] == DIRSEP || (isalpha(name[0]) && name[1] == ':') || MIXDIR[0] == '\0') {
     strncpy(path, name, PATHMAX);
     path[PATHMAX-1] = '\0';
   } else {

@@ -555,7 +555,7 @@ int pgp_rkeylist(REMAILER remailer[], int keyid[], int n)
 {
   BUFFER *userid;
   BUFFER *id;
-  int i, err;
+  int i;
 
   userid = buf_new();
   id = buf_new();
@@ -567,7 +567,8 @@ int pgp_rkeylist(REMAILER remailer[], int keyid[], int n)
     keyid[i]=0;
     if (remailer[i].flags.pgp) {
       buf_clear(id);
-      err = pgpdb_getkey(PK_VERIFY, PGP_ANY, NULL, NULL, NULL, NULL, userid, NULL, id, NULL, NULL);
+      /* a short/absent id is the failure signal we act on, not the return code */
+      (void) pgpdb_getkey(PK_VERIFY, PGP_ANY, NULL, NULL, NULL, NULL, userid, NULL, id, NULL, NULL);
       if (id->length == 8) {
 	/* printf("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x %s\n",
 	   id->data[0], id->data[1], id->data[2], id->data[3], id->data[4], id->data[5], id->data[6], id->data[7], id->data[8], remailer[i].addr); */
@@ -577,6 +578,7 @@ int pgp_rkeylist(REMAILER remailer[], int keyid[], int n)
   }
 
   buf_free(userid);
+  buf_free(id);
   return (0);
 }
 

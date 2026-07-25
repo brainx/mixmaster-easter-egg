@@ -460,11 +460,10 @@ end:
 #ifdef USE_NCURSES
 static int sortrel(const void *a, const void *b)
 {
-  int na, ra, nb, rb;
+  int ra, rb;
 
-  na = *(int *) a;
-  nb = *(int *) b;
-
+  /* sort by reliability (second field) descending; the first field is the
+     remailer number, which is deliberately not a tiebreaker */
   ra = *((int *) a + 1);
   rb = *((int *) b + 1);
   return rb - ra;

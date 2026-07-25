@@ -81,15 +81,29 @@
 
 #if defined(UNIX) || defined(WIN32)
 /* Use the PCRE regular expression library for destination blocking? */
+#ifndef USE_PCRE
 #define USE_PCRE
+#endif
 /* Use zlib for compression? */
+#ifndef USE_ZLIB
 #define USE_ZLIB
+#endif
 /* Use ncurses? */
+#ifndef USE_NCURSES
 #define USE_NCURSES
+#endif
 #endif
 
 #if defined(USE_NCURSES) && defined(UNIX)
+#ifndef HAVE_NCURSES_H
 #define HAVE_NCURSES_H
+#endif
+#endif
+
+/* setenv(3) is POSIX.1-2001; without it parse_yearmonthday() falls back to a
+   putenv() path that must keep its buffer alive. See Src/util.c. */
+#if defined(POSIX) && !defined(HAVE_SETENV)
+#define HAVE_SETENV
 #endif
 
 #ifdef WIN32
