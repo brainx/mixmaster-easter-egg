@@ -84,14 +84,22 @@ static int read_seckey(BUFFER *buf, SECKEY *key, const byte id[])
   byte *ptr;
   int err = 0;
 
-  md = buf_new();
+  if (buf->length < 2)
+    return (-1);
   bits = buf->data[0] + 256 * buf->data[1];
   len = (bits + 7) / 8;
   plen = (len + 1) / 2;
 
-  /* due to encryption, buffer size is multiple of 8 */
-  if (3 * len + 5 * plen + 8 < buf->length || 3 * len + 5 * plen > buf->length)
+  if (len > MAX_RSA_MODULUS_LEN)
     return (-1);
+
+  /* due to encryption, buffer size is multiple of 8. The reads below start at
+     offset 2 and span 3*len + 5*plen bytes, so the upper bound needs the +2 --
+     without it the last two bytes read past buf->length. */
+  if (3 * len + 5 * plen + 8 < buf->length || 3 * len + 5 * plen + 2 > buf->length)
+    return (-1);
+
+  md = buf_new();
 
   {
     BIGNUM *n, *e, *d, *p, *q, *dmp1, *dmq1, *iqmp;
@@ -150,12 +158,18 @@ static int read_pubkey(BUFFER *buf, PUBKEY *key, const byte id[])
   byte *ptr;
   int err = 0;
 
-  md = buf_new();
+  if (buf->length < 2)
+    return (-1);
   bits = buf->data[0] + 256 * buf->data[1];
   len = (bits + 7) / 8;
 
+  if (len > MAX_RSA_MODULUS_LEN)
+    return (-1);
+
   if (2 * len + 2 != buf->length)
     return (-1);
+
+  md = buf_new();
 
   {
     BIGNUM *n, *e;
@@ -397,7 +411,15 @@ int pk_decrypt(BUFFER *in, BUFFER *keybuf)
 
   out = buf_new();
   key = RSA_new();
-  read_seckey(keybuf, key, NULL);
+  /* A rejected key leaves no modulus on the RSA object, and handing that to
+     RSA_private_decrypt() dereferences a NULL BIGNUM. Bail out instead; `out`
+     is still empty, so the caller sees the same empty result it gets from a
+     failed decrypt. */
+  if (read_seckey(keybuf, key, NULL) != 0) {
+    errlog(ERRORMSG, "Invalid secret key.\n");
+    err = -1;
+    goto end;
+  }
 
   buf_prepare(out, in->length);
   out->length = RSA_private_decrypt(in->length, in->data, out->data, key,
@@ -405,6 +427,7 @@ int pk_decrypt(BUFFER *in, BUFFER *keybuf)
   if (out->length == -1)
     err = -1, out->length = 0;
 
+end:
   RSA_free(key);
   buf_move(in, out);
   buf_free(out);
@@ -419,13 +442,21 @@ int pk_encrypt(BUFFER *in, BUFFER *keybuf)
 
   out = buf_new();
   key = RSA_new();
-  read_pubkey(keybuf, key, NULL);
+  /* see pk_decrypt(): an unpopulated RSA object crashes RSA_size() and
+     RSA_public_encrypt() rather than returning an error */
+  if (read_pubkey(keybuf, key, NULL) != 0) {
+    errlog(ERRORMSG, "Invalid public key.\n");
+    err = -1;
+    goto end;
+  }
 
   buf_prepare(out, RSA_size(key));
   out->length = RSA_public_encrypt(in->length, in->data, out->data, key,
 				   RSA_PKCS1_PADDING);
   if (out->length == -1)
     out->length = 0, err = -1;
+
+end:
   buf_move(in, out);
   buf_free(out);
   RSA_free(key);

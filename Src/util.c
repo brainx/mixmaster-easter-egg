@@ -634,7 +634,10 @@ time_t parse_yearmonthday(char* str)
       unsetenv("TZ");
 #else  /* end of HAVE_SETENV */
     if (tz) {
-      char envstr[LINELEN];
+      /* putenv() stores this pointer rather than copying it, so the buffer has
+	 to outlive the call -- a stack array here left a dangling entry in
+	 environ. */
+      static char envstr[LINELEN];
       snprintf(envstr, LINELEN, "TZ=%s", tz);
       putenv(envstr);
     } else

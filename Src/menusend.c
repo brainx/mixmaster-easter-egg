@@ -293,7 +293,7 @@ redraw:
 
 	edit:
 	  linecount = 1;
-	  sprintf(path, "%s%cx%02x%02x%02x%02x.txt", POOLDIR, DIRSEP,
+	  snprintf(path, PATHMAX, "%s%cx%02x%02x%02x%02x.txt", POOLDIR, DIRSEP,
 		  rnd_byte(), rnd_byte(), rnd_byte(), rnd_byte());
 	  f = fopen(path, "w");
 	  if (f == NULL) {

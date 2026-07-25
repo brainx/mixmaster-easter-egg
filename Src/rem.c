@@ -80,14 +80,16 @@ int mix_pool(BUFFER *msg, int type, long latent)
 }
 
 int pool_packetfile(char *fname, BUFFER *mid, int packetnum)
-     /* create a filename */
+     /* create a filename. fname must be at least PATHMAX bytes; every caller
+	declares char fname[PATHMAX]. POOLDIR is itself PATHMAX, so the
+	unbounded sprintf this replaced could overflow the caller's frame. */
 {
 #ifdef SHORTNAMES
-  sprintf(fname, "%s%cp%02x%02x%02x%01x.%02x", POOLDIR, DIRSEP,
+  snprintf(fname, PATHMAX, "%s%cp%02x%02x%02x%01x.%02x", POOLDIR, DIRSEP,
 	  mid->data[0], mid->data[1], mid->data[2], mid->data[3] & 15,
 	  packetnum);
 #else /* end of SHORTNAMES */
-  sprintf(fname, "%s%cp%02x%02x%02x%02x%02x%02x%01x", POOLDIR, DIRSEP,
+  snprintf(fname, PATHMAX, "%s%cp%02x%02x%02x%02x%02x%02x%01x", POOLDIR, DIRSEP,
 	  packetnum, mid->data[0], mid->data[1], mid->data[2], mid->data[3],
 	  mid->data[4], mid->data[5] & 15);
 #endif /* else if not SHORTNAMES */
