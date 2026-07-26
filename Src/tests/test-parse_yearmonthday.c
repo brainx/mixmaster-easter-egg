@@ -1,6 +1,6 @@
 /* Mixmaster 3.0 — regression test for parse_yearmonthday() (NEW-2026)
    Links the real Src/util.c rather than carrying its own copy of the function,
-   so this actually exercises production code. See FIXPLAN.md (F5, F12).
+   so this actually exercises production code.
 
    $Id: test-parse_yearmonthday.c $ */
 

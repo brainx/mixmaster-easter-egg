@@ -1,5 +1,5 @@
 /* Mixmaster 3.0 — regression test for the v2 RSA key readers (NEW-2026)
-   Links the real Src/crypto.c; see MODERNIZATION.md and FIXPLAN.md (F2, F3).
+   Links the real Src/crypto.c; see MODERNIZATION.md.
 
    Covers:
      - a well-formed 1024-bit key round-trips through read_seckey/read_pubkey

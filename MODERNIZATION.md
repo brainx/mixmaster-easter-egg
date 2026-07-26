@@ -44,7 +44,7 @@ These files existed in Mixmaster 3.0; we edited them for **macOS Apple Silicon**
 | [`Src/menu.c`](Src/menu.c) | Drop unused fields in `sortrel()` |
 | [`Src/menusend.c`](Src/menusend.c) | Local news posting dropped the message; `snprintf` for the edit path |
 | [`Src/menustats.c`](Src/menustats.c) | `printw("%s", ...)` for config-derived strings |
-| [`Src/stats.c`](Src/stats.c) | **Out-of-bounds read in the per-day summary** — see [`FIXPLAN.md`](FIXPLAN.md) F1 |
+| [`Src/stats.c`](Src/stats.c) | Clamp the per-day summary to the 80 days the counters actually cover |
 | [`Src/util.c`](Src/util.c) | `putenv()` buffer lifetime in `parse_yearmonthday()`; empty-string test in `mixfile()` |
 | [`Src/Makefile.in`](Src/Makefile.in) | Build `mixremailer`; link remailer objects; `check`/`tests` targets; warning flags; rename dead `remailer` target |
 | [`Src/parsedate.y`](Src/parsedate.y) | `(void) s` instead of self-assignment |
@@ -71,7 +71,7 @@ copy of the code under test:
 |------|--------|
 | [`test-parse_yearmonthday.c`](Src/tests/test-parse_yearmonthday.c) | Date parsing, and that `TZ` is restored afterwards |
 | [`test-crypto-keys.c`](Src/tests/test-crypto-keys.c) | v2 RSA key round trip; malformed keys rejected, not crashed on |
-| [`test-stats-window.c`](Src/tests/test-stats-window.c) | The 80-day clamp in `stats()` ([`FIXPLAN.md`](FIXPLAN.md) F1) |
+| [`test-stats-window.c`](Src/tests/test-stats-window.c) | The 80-day clamp in `stats()` |
 
 Run them under a sanitizer to check the out-of-bounds claims directly — CI does
 this on every push:
@@ -105,7 +105,6 @@ make -C Src OPT="-g -O0 -fsanitize=address -fno-omit-frame-pointer" \
 |------|---------|
 | [`README.md`](README.md) | GitHub front door |
 | [`EASTER_EGG.md`](EASTER_EGG.md) | Easter egg — Mixmaster & Bitcoin (2008) |
-| [`FIXPLAN.md`](FIXPLAN.md) | 2026 audit findings and their fixes |
 | [`LICENSE`](LICENSE) | Points to [`COPYRIGHT`](COPYRIGHT) |
 | [`assets/favicon.svg`](assets/favicon.svg) | Repo icon |
 | [`mixmaster.1`](mixmaster.1) | Updated `--about` / HISTORY sections |

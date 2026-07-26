@@ -74,7 +74,7 @@ mpgp:	$(OBJ) $(NOMENUOBJ) mpgp.o $(REM_OBJ) $(LIBS)
 	$(CC) $(OBJ) $(NOMENUOBJ) mpgp.o $(REM_OBJ) $(LIBS) $(LDFLAGS) -o mpgp
 
 # Tests link the real objects, so they exercise production code rather than a
-# copy of it. NEW-2026 -- see FIXPLAN.md (F12).
+# copy of it. NEW-2026 -- see MODERNIZATION.md.
 TESTS = tests/test-parse_yearmonthday tests/test-crypto-keys tests/test-stats-window
 TESTOBJ = $(OBJ) $(NOMENUOBJ) $(REM_OBJ)
 

@@ -1,7 +1,7 @@
 Mixmaster 3.0 — files touched in 2026 modernization
 =====================================================
 Search markers in each file: MODERNIZED-2026 (patched) or NEW-2026 (new module)
-Full details: MODERNIZATION.md · audit findings: FIXPLAN.md
+Full details: MODERNIZATION.md
 
 This list is verified by `make -C Src check`-adjacent tooling only in the sense
 that it is kept in sync by hand; if you touch a vintage file, add the marker and
@@ -61,7 +61,6 @@ README.md
 MODERNIZATION.md
 CHANGES-2026.txt
 EASTER_EGG.md
-FIXPLAN.md
 AGENTS.md
 LICENSE
 assets/favicon.svg

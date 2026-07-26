@@ -1,5 +1,5 @@
 /* Mixmaster 3.0 — regression test for the stats() day window (NEW-2026)
-   Links the real Src/stats.c; see FIXPLAN.md (F1).
+   Links the real Src/stats.c; see MODERNIZATION.md.
 
    stats() summarises the last 80 days out of int msg[7][80] / int pool[2][80].
    The start index came from `havestats`, the oldest timestamp in stats.log or
