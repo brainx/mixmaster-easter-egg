@@ -8,22 +8,32 @@ against a real `Mix/` spool.
 
 ---
 
-## Summary
+## Status
 
-| # | Severity | Issue | File |
-|---|----------|-------|------|
-| F1 | **High** | Remotely-triggerable out-of-bounds stack read, contents mailed to requester | `Src/stats.c:210` |
-| F2 | Medium | `BUFFER` leaked on every malformed key | `Src/crypto.c:93,157` |
-| F3 | Medium | Off-by-two bound check; `MAX_RSA_MODULUS_LEN` never enforced | `Src/crypto.c:93` |
-| F4 | Medium | Unbounded `sprintf` into `PATHMAX` buffers | `Src/rem.c:86,90`, `Src/menusend.c:296` |
-| F5 | Medium | `putenv()` given a stack-local buffer (dangling env pointer) | `Src/util.c:637` |
-| F6 | Low | Block-request parser mutates the message it is parsing | `Src/remailer/remailer_admin.c:88` |
-| F7 | Low | Any body *mentioning* `destination-block` is treated as a block request | `Src/remailer/remailer_admin.c:91` |
-| F8 | Low | `--no-detach` alone silently does nothing | `Src/remailer/mixremailer.c:74` |
-| F9 | Low | 140 self-inflicted macro-redefinition warnings | `Src/config.h:84` |
-| F10 | Low | `clean` target names the new source directory | `Src/Makefile.in` |
-| F11 | Process | Documented traceability invariant is broken | `MODERNIZATION.md`, `CHANGES-2026.txt` |
-| F12 | Process | No automated tests actually run | `Src/tests/`, CI |
+**All findings below are fixed** on branch `fix/audit-2026-07` (five commits on top
+of `7756250`). Verification after the fixes: full clean build with **0 warnings**
+(down from 397), `make -C Src check` green at **39 checks / 0 failures**, and the
+whole suite **AddressSanitizer-clean**.
+
+| # | Severity | Issue | File | Fixed in |
+|---|----------|-------|------|----------|
+| F1 | **High** | Remotely-triggerable out-of-bounds stack read, contents mailed to requester | `Src/stats.c:210` | `94bad8e` |
+| F13 | **High** | NULL deref on a malformed key — `pk_encrypt`/`pk_decrypt` used a rejected key | `Src/crypto.c:392,414` | `ab22199` |
+| F2 | Medium | `BUFFER` leaked on every malformed key | `Src/crypto.c:93,157` | `ab22199` |
+| F3 | Medium | Off-by-two bound check; `MAX_RSA_MODULUS_LEN` never enforced | `Src/crypto.c:93` | `ab22199` |
+| F4 | Medium | Unbounded `sprintf` into `PATHMAX` buffers | `Src/rem.c:86,90`, `Src/menusend.c:296` | `ab22199` |
+| F5 | Medium | `putenv()` given a stack-local buffer (dangling env pointer) | `Src/util.c:637` | `ab22199` |
+| F14 | Medium | `id` buffer leaked in `pgp_rkeylist()` | `Src/pgpdb.c:553` | `c3dfe29` |
+| F6 | Low | Block-request parser mutates the message it is parsing | `Src/remailer/remailer_admin.c:88` | `2813427` |
+| F7 | Low | Any body *mentioning* `destination-block` is treated as a block request | `Src/remailer/remailer_admin.c:91` | `2813427` |
+| F8 | Low | `--no-detach` alone silently does nothing | `Src/remailer/mixremailer.c:74` | `2813427` |
+| F9 | Low | 140 self-inflicted macro-redefinition warnings | `Src/config.h:84` | `c3dfe29` |
+| F10 | Low | Dead `remailer` target shadowed by `Src/remailer/`; `clean` named the source dir | `Src/Makefile.in` | `2813427` |
+| F11 | Process | Documented traceability invariant is broken | `MODERNIZATION.md`, `CHANGES-2026.txt` | `c892053` |
+| F12 | Process | No automated tests actually run | `Src/tests/`, CI | `c892053` |
+
+F13 and F14 were not in the original audit — F13 surfaced while writing the crypto
+regression test, F14 while clearing the warning backlog. Both are described below.
 
 ---
 
@@ -113,6 +123,57 @@ Then harden the root cause so the index cannot go out of range even if a new pat
 added — clamp `havestats` at the three assignment sites, or assert the bound before the
 loop. Add a regression test that writes a `stats.log` record 400 days old and asserts the
 reply contains at most 79 daily rows.
+
+---
+
+## F13 — NULL dereference on a malformed key  ·  **High**  ·  found while testing
+
+`Src/crypto.c`. Both public-key entry points discarded the parse result and used
+the RSA object regardless:
+
+```c
+int pk_encrypt(BUFFER *in, BUFFER *keybuf)
+{
+  key = RSA_new();
+  read_pubkey(keybuf, key, NULL);          /* return value dropped */
+  buf_prepare(out, RSA_size(key));
+  out->length = RSA_public_encrypt(in->length, in->data, out->data, key, ...);
+```
+
+When `read_pubkey` rejects the blob, nothing is set on `key`, so `RSA_size()` and
+`RSA_public_encrypt()` walk a NULL modulus. Confirmed under lldb:
+
+```
+stop reason = EXC_BAD_ACCESS (code=1, address=0x8)
+frame #0: BN_num_bits + 24
+```
+
+`pk_decrypt` had the identical shape with `read_seckey` and
+`RSA_private_decrypt`. A single corrupt entry in `pubring.mix` — which in normal
+operation is populated from remailer `remailer-key` replies — was enough to crash
+the client or the remailer.
+
+**Fixed:** check the return value and fail cleanly, leaving the output buffer
+empty, which is the state callers already handle from a failed decrypt. Covered by
+three cases in `tests/test-crypto-keys.c` (malformed public key, malformed secret
+key, well-formed-length blob with a zero modulus).
+
+This one is worth noting as a process point: it was invisible to review because
+the bug is an *absent* check, and it only became obvious once a test fed the
+function something malformed.
+
+---
+
+## F14 — `id` buffer leaked in `pgp_rkeylist()`  ·  Medium  ·  found while testing
+
+`Src/pgpdb.c:553`. `pgp_rkeylist()` allocates `userid` and `id` but frees only
+`userid`, leaking one `BUFFER` per call. It surfaced only because clang's
+`-Wunused-but-set-variable` on the neighbouring `err` drew attention to the
+function — which is the argument for keeping the warning count at zero.
+
+**Fixed:** free `id`, and stop storing the `pgpdb_getkey()` return code that the
+function never consulted (the `id->length == 8` check is the real guard, now
+stated as such).
 
 ---
 
@@ -364,13 +425,42 @@ that silently rots without CI.
 
 ---
 
-## Suggested order of work
+## How it was done
 
-1. **F1** on its own branch — it is the only finding with security impact, and it is a
-   three-line change plus a regression test.
-2. **F9** plus the two `-Wno-` flags, so the build produces ~10 readable warnings instead
-   of 397. Do this before the rest; it makes the remaining work verifiable.
-3. **F2, F3, F4, F5** — the memory-safety cluster. Small, independent, mechanical.
-4. **F12** — wire up CI and tests, so items 1–3 stay fixed.
-5. **F6, F7, F8, F10** — behavioural cleanups in the new remailer module.
-6. **F11** — refresh the docs last, once the file list has stopped moving.
+Commits, in the order they landed:
+
+| Commit | Covers |
+|--------|--------|
+| `94bad8e` | F1 — the security fix, on its own so it can be reviewed or cherry-picked alone |
+| `c3dfe29` | F9 + F14 — warning backlog to zero, which is what exposed F14 |
+| `ab22199` | F2, F3, F4, F5, F13 — the memory-safety cluster |
+| `2813427` | F6, F7, F8, F10 — behavioural cleanups in the remailer module |
+| `c892053` | F11, F12 — tests, CI, and the docs refresh |
+
+Clearing the warnings second was deliberate: at 397 warnings there was no way to
+tell whether a later change introduced a new one. Everything after `c3dfe29` was
+verified against a genuinely quiet build.
+
+One caveat worth recording: an incremental `make` hides warnings in files it does
+not recompile. An early "0 warnings" reading here was wrong for that reason — the
+real number was 2, in `parsedate.y` and `remailer_server.c`. Warning counts in this
+document are all from `./scripts/build-macos.sh clean` followed by a full build.
+
+## Not addressed
+
+Deliberately left alone, all pre-existing and low-consequence for a preservation
+fork:
+
+- **`t2_decrypt()` returns only the last packet's status** (`Src/rem.c:43`). A
+  message carrying several Type II packets reports success if the final one
+  succeeds, even if an earlier one failed. Vintage behaviour; changing it would
+  alter what gets logged and replied to.
+- **`RAND_bytes()` return values are unchecked** throughout (`Src/random.c`). On
+  OpenSSL 3 a failure would leave the buffer untouched rather than filled. The
+  DRBG self-seeds and `rnd_error()` aborts when unseeded, so this is theoretical,
+  but a remailer is exactly the kind of program that should check.
+- **`scripts/build-macos.sh` does not clean stale objects** when flags change, so
+  switching to a sanitizer build and back produces confusing link errors until
+  `build-macos.sh clean` is run.
+- **Unanchored `bufifind` used for `x-loop` detection** (`Src/rem.c:166`) has the
+  same shape as F7, but loop detection is intentionally permissive.
