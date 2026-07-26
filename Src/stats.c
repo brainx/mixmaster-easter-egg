@@ -6,6 +6,7 @@
    details.
 
    Remailer statistics
+   MODERNIZED-2026  see MODERNIZATION.md
    $Id: stats.c 934 2006-06-24 13:40:39Z rabbi $ */
 
 

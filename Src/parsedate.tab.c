@@ -1,4 +1,3 @@
-/* MODERNIZED-2026: pre-generated parser — see MODERNIZATION.md */
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
@@ -93,8 +92,9 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "parsedate.y"
+#line 1 "Src/parsedate.y"
 
+/*  MODERNIZED-2026  see MODERNIZATION.md  */
 /*  $Id: parsedate.y 647 2003-10-25 23:34:13Z weasel $
 **
 **  Originally written by Steven M. Bellovin <smb@research.att.com> while
@@ -252,13 +252,13 @@ static void		date_error(const char *s);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 139 "parsedate.y"
+#line 140 "Src/parsedate.y"
 {
     time_t		Number;
     enum _MERIDIAN	Meridian;
 }
 /* Line 193 of yacc.c.  */
-#line 261 "parsedate.tab.c"
+#line 262 "Src/parsedate.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -271,7 +271,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 274 "parsedate.tab.c"
+#line 275 "Src/parsedate.tab.c"
 
 #ifdef short
 # undef short
@@ -565,10 +565,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   153,   153,   154,   157,   166,   170,   173,   178,   190,
-     196,   203,   209,   219,   223,   227,   235,   241,   262,   266,
-     292,   296,   309,   313,   326,   341,   344,   347,   350,   355,
-     358
+       0,   154,   154,   155,   158,   167,   171,   174,   179,   191,
+     197,   204,   210,   220,   224,   228,   236,   242,   263,   267,
+     293,   297,   310,   314,   327,   342,   345,   348,   351,   356,
+     359
 };
 #endif
 
@@ -1494,7 +1494,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 157 "parsedate.y"
+#line 158 "Src/parsedate.y"
     {
 	    yyHaveTime++;
 #if	defined(lint)
@@ -1507,7 +1507,7 @@ yyreduce:
     break;
 
   case 5:
-#line 166 "parsedate.y"
+#line 167 "Src/parsedate.y"
     {
 	    yyHaveTime++;
 	    yyTimezone = (yyvsp[(2) - (2)].Number);
@@ -1515,21 +1515,21 @@ yyreduce:
     break;
 
   case 6:
-#line 170 "parsedate.y"
+#line 171 "Src/parsedate.y"
     {
 	    yyHaveDate++;
 	}
     break;
 
   case 7:
-#line 173 "parsedate.y"
+#line 174 "Src/parsedate.y"
     {
 	    yyHaveRel = 1;
 	}
     break;
 
   case 8:
-#line 178 "parsedate.y"
+#line 179 "Src/parsedate.y"
     {
 	    if ((yyvsp[(1) - (2)].Number) < 100) {
 		yyHour = (yyvsp[(1) - (2)].Number);
@@ -1545,7 +1545,7 @@ yyreduce:
     break;
 
   case 9:
-#line 190 "parsedate.y"
+#line 191 "Src/parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (4)].Number);
 	    yyMinutes = (yyvsp[(3) - (4)].Number);
@@ -1555,7 +1555,7 @@ yyreduce:
     break;
 
   case 10:
-#line 196 "parsedate.y"
+#line 197 "Src/parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (4)].Number);
 	    yyMinutes = (yyvsp[(3) - (4)].Number);
@@ -1566,7 +1566,7 @@ yyreduce:
     break;
 
   case 11:
-#line 203 "parsedate.y"
+#line 204 "Src/parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (6)].Number);
 	    yyMinutes = (yyvsp[(3) - (6)].Number);
@@ -1576,7 +1576,7 @@ yyreduce:
     break;
 
   case 12:
-#line 209 "parsedate.y"
+#line 210 "Src/parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (6)].Number);
 	    yyMinutes = (yyvsp[(3) - (6)].Number);
@@ -1588,7 +1588,7 @@ yyreduce:
     break;
 
   case 13:
-#line 219 "parsedate.y"
+#line 220 "Src/parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSToff;
@@ -1596,7 +1596,7 @@ yyreduce:
     break;
 
   case 14:
-#line 223 "parsedate.y"
+#line 224 "Src/parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSTon;
@@ -1604,7 +1604,7 @@ yyreduce:
     break;
 
   case 15:
-#line 227 "parsedate.y"
+#line 228 "Src/parsedate.y"
     {
 	    /* Only allow "GMT+300" and "GMT-0800" */
 	    if ((yyvsp[(1) - (2)].Number) != 0) {
@@ -1616,7 +1616,7 @@ yyreduce:
     break;
 
   case 16:
-#line 235 "parsedate.y"
+#line 236 "Src/parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSToff;
@@ -1624,7 +1624,7 @@ yyreduce:
     break;
 
   case 17:
-#line 241 "parsedate.y"
+#line 242 "Src/parsedate.y"
     {
 	    int		i;
 
@@ -1647,7 +1647,7 @@ yyreduce:
     break;
 
   case 18:
-#line 262 "parsedate.y"
+#line 263 "Src/parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (3)].Number);
 	    yyDay = (yyvsp[(3) - (3)].Number);
@@ -1655,7 +1655,7 @@ yyreduce:
     break;
 
   case 19:
-#line 266 "parsedate.y"
+#line 267 "Src/parsedate.y"
     {
 	    if ((yyvsp[(1) - (5)].Number) > 100) {
 		/* assume YYYY/MM/DD format, so need not to add 1900 */
@@ -1685,7 +1685,7 @@ yyreduce:
     break;
 
   case 20:
-#line 292 "parsedate.y"
+#line 293 "Src/parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (2)].Number);
 	    yyDay = (yyvsp[(2) - (2)].Number);
@@ -1693,7 +1693,7 @@ yyreduce:
     break;
 
   case 21:
-#line 296 "parsedate.y"
+#line 297 "Src/parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (4)].Number);
 	    yyDay = (yyvsp[(2) - (4)].Number);
@@ -1710,7 +1710,7 @@ yyreduce:
     break;
 
   case 22:
-#line 309 "parsedate.y"
+#line 310 "Src/parsedate.y"
     {
 	    yyDay = (yyvsp[(1) - (2)].Number);
 	    yyMonth = (yyvsp[(2) - (2)].Number);
@@ -1718,7 +1718,7 @@ yyreduce:
     break;
 
   case 23:
-#line 313 "parsedate.y"
+#line 314 "Src/parsedate.y"
     {
 	    yyDay = (yyvsp[(1) - (3)].Number);
 	    yyMonth = (yyvsp[(2) - (3)].Number);
@@ -1735,7 +1735,7 @@ yyreduce:
     break;
 
   case 24:
-#line 326 "parsedate.y"
+#line 327 "Src/parsedate.y"
     {
 	    yyDay = (yyvsp[(3) - (5)].Number);
 	    yyMonth = (yyvsp[(4) - (5)].Number);
@@ -1752,42 +1752,42 @@ yyreduce:
     break;
 
   case 25:
-#line 341 "parsedate.y"
+#line 342 "Src/parsedate.y"
     {
 	    yyRelSeconds += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
     break;
 
   case 26:
-#line 344 "parsedate.y"
+#line 345 "Src/parsedate.y"
     {
 	    yyRelSeconds += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
     break;
 
   case 27:
-#line 347 "parsedate.y"
+#line 348 "Src/parsedate.y"
     {
 	    yyRelMonth += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
     break;
 
   case 28:
-#line 350 "parsedate.y"
+#line 351 "Src/parsedate.y"
     {
 	    yyRelMonth += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
     break;
 
   case 29:
-#line 355 "parsedate.y"
+#line 356 "Src/parsedate.y"
     {
 	    (yyval.Meridian) = MER24;
 	}
     break;
 
   case 30:
-#line 358 "parsedate.y"
+#line 359 "Src/parsedate.y"
     {
 	    (yyval.Meridian) = (yyvsp[(1) - (1)].Meridian);
 	}
@@ -1795,7 +1795,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1798 "parsedate.tab.c"
+#line 1799 "Src/parsedate.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2009,7 +2009,7 @@ yyreturn:
 }
 
 
-#line 363 "parsedate.y"
+#line 364 "Src/parsedate.y"
 
 
 /* Month and day table. */
@@ -2167,7 +2167,7 @@ static TABLE	TimezoneTable[] = {
 static void
 date_error(const char *s)
 {
-    s = s;			/* ARGSUSED */
+    (void) s;			/* ARGSUSED */
     /* NOTREACHED */
 }
 

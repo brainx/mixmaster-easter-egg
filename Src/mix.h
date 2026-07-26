@@ -6,6 +6,8 @@
    details.
 
 
+   MODERNIZED-2026  see MODERNIZATION.md
+
    Mixmaster Library API
    =====================
 
@@ -790,7 +792,7 @@ int buf_zip(BUFFER *buf, BUFFER *f, int b);
 int buf_unzip(BUFFER *buf, int type);
 
   uncompresses a GZIP [RFC 1952] compressed buffer. If type == 1, uncompress
-  a ZLIB [RFC 1950] compressed buffer.
+  a ZLIBï¿½[RFC 1950] compressed buffer.
 
   Return values:
    0 on success,
@@ -818,7 +820,7 @@ typedef struct {
   byte sensitive;
 } BUFFER;
 
-int mix_init(char *);
+int mix_init(const char *);
 void mix_exit(void);
 void rnd_update(byte *b, int n);
 void rnd_initialized(void);

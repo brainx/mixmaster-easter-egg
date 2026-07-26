@@ -1,0 +1,79 @@
+# MODERNIZED-2026 — see MODERNIZATION.md
+name: build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install openssl@3 ncurses
+          brew install --build-from-source pcre || brew install pcre
+
+      - name: Build
+        run: ./scripts/build-macos.sh
+
+      - name: Run tests
+        run: make -C Src check
+
+      - name: Verify binaries
+        run: |
+          bin/mixmaster --version
+          bin/mixremailer --version
+          SETUP_FORCE_CFG=1 ./scripts/setup-mixdir.sh
+          MIXPATH="$PWD/Mix" bin/mixremailer -M
+
+  # AGENTS.md documents scripts/build-linux.sh as the path for the Linux dev
+  # environment, including a non-obvious -fcommon requirement, but nothing in CI
+  # exercised it -- which is how that sort of thing rots.
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libpcre3-dev libncurses-dev zlib1g-dev
+
+      - name: Build
+        run: ./scripts/build-linux.sh
+
+      - name: Run tests
+        run: make -C Src check
+
+      - name: Verify binaries
+        run: |
+          bin/mixmaster --version
+          bin/mixremailer --version
+          SETUP_FORCE_CFG=1 ./scripts/setup-mixdir.sh
+          MIXPATH="$PWD/Mix" bin/mixremailer -M
+
+  # The negative cases in tests/test-crypto-keys.c and the day-window clamp in
+  # tests/test-stats-window.c are specifically about not reading out of bounds,
+  # so run the suite once under the sanitizers that can actually see that.
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libpcre3-dev libncurses-dev zlib1g-dev
+
+      - name: Build and test with ASan/UBSan
+        run: |
+          ./scripts/build-linux.sh
+          make -C Src clean
+          make -C Src \
+            OPT="-g -O0 -fcommon -fsanitize=address,undefined -fno-omit-frame-pointer" \
+            LDFLAGS="-lcrypto -lpcre -lncurses -lz -fsanitize=address,undefined" \
+            check

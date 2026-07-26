@@ -1,4 +1,5 @@
 %{
+/*  MODERNIZED-2026  see MODERNIZATION.md  */
 /*  $Id: parsedate.y 647 2003-10-25 23:34:13Z weasel $
 **
 **  Originally written by Steven M. Bellovin <smb@research.att.com> while
@@ -517,7 +518,7 @@ static TABLE	TimezoneTable[] = {
 static void
 date_error(const char *s)
 {
-    s = s;			/* ARGSUSED */
+    (void) s;			/* ARGSUSED */
     /* NOTREACHED */
 }
 

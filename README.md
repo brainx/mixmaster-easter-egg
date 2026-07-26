@@ -72,6 +72,12 @@ Or use the Makefile shortcuts:
 make build && make setup && make start
 ```
 
+Run the regression tests:
+
+```bash
+make -C Src check
+```
+
 `setup-mixdir.sh` copies `conf/` templates into a local `Mix/` spool (or `$MIXPATH`). `start-mixmaster.sh` runs the ncurses menu client in the foreground — press `Ctrl+C` to exit cleanly.
 
 **Alternative:** the vintage interactive installer still works:

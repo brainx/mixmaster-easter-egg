@@ -75,7 +75,7 @@ mpgp:	$(OBJ) $(NOMENUOBJ) mpgp.o $(REM_OBJ) $(LIBS)
 
 # Tests link the real objects, so they exercise production code rather than a
 # copy of it. NEW-2026 -- see FIXPLAN.md (F12).
-TESTS = tests/test-parse_yearmonthday tests/test-crypto-keys
+TESTS = tests/test-parse_yearmonthday tests/test-crypto-keys tests/test-stats-window
 TESTOBJ = $(OBJ) $(NOMENUOBJ) $(REM_OBJ)
 
 tests/test-parse_yearmonthday: tests/test-parse_yearmonthday.o $(TESTOBJ) $(LIBS)
@@ -83,6 +83,9 @@ tests/test-parse_yearmonthday: tests/test-parse_yearmonthday.o $(TESTOBJ) $(LIBS
 
 tests/test-crypto-keys: tests/test-crypto-keys.o $(TESTOBJ) $(LIBS)
 	$(CC) tests/test-crypto-keys.o $(TESTOBJ) $(LIBS) $(LDFLAGS) -o $@
+
+tests/test-stats-window: tests/test-stats-window.o $(TESTOBJ) $(LIBS)
+	$(CC) tests/test-stats-window.o $(TESTOBJ) $(LIBS) $(LDFLAGS) -o $@
 
 tests:	$(TESTS)
 

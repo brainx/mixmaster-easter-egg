@@ -6,6 +6,7 @@
    details.
 
    Mixmaster initialization, configuration
+   MODERNIZED-2026  see MODERNIZATION.md
    $Id: mix.c 962 2007-11-19 13:42:41Z zax $ */
 
 
@@ -904,7 +905,7 @@ void mix_check_timeskew() {
   }
 }
 
-int mix_init(char *mixdir)
+int mix_init(const char *mixdir)
 {
   if (!initialized) {
     if (mixdir)

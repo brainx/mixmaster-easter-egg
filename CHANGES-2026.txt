@@ -1,7 +1,11 @@
 Mixmaster 3.0 — files touched in 2026 modernization
 =====================================================
 Search markers in each file: MODERNIZED-2026 (patched) or NEW-2026 (new module)
-Full details: MODERNIZATION.md
+Full details: MODERNIZATION.md · audit findings: FIXPLAN.md
+
+This list is verified by `make -C Src check`-adjacent tooling only in the sense
+that it is kept in sync by hand; if you touch a vintage file, add the marker and
+add it here.
 
 --- Patched vintage C (MODERNIZED-2026) ---
 Src/config.h
@@ -10,11 +14,22 @@ Src/crypto.c
 Src/pgpdata.c
 Src/pgpget.c
 Src/pgpcreat.c
+Src/pgpdb.c
 Src/random.c
 Src/pool.c
 Src/rem.c
+Src/rem1.c
 Src/main.c
+Src/mail.c
+Src/mix.c
+Src/mix.h
+Src/menu.c
+Src/menusend.c
+Src/menustats.c
+Src/stats.c
+Src/util.c
 Src/Makefile.in
+Src/parsedate.y
 Src/parsedate.tab.c
 
 --- New remailer module (NEW-2026) ---
@@ -25,21 +40,29 @@ Src/remailer/remailer_server.c
 Src/remailer/mixremailer.c
 Src/remailer/ARCHITECTURE.md
 
+--- Tests (NEW-2026) ---
+Src/tests/test-parse_yearmonthday.c
+Src/tests/test-crypto-keys.c
+Src/tests/test-stats-window.c
+
 --- Scripts (MODERNIZED-2026) ---
 scripts/build-macos.sh
+scripts/build-linux.sh
 scripts/setup-mixdir.sh
 scripts/start-mixmaster.sh
 scripts/start-remailer.sh
 
 --- Build / CI (MODERNIZED-2026) ---
 Makefile
-.github/workflows/macos-build.yml
+.github/workflows/build.yml
 
 --- Docs & assets (2026) ---
 README.md
 MODERNIZATION.md
 CHANGES-2026.txt
 EASTER_EGG.md
+FIXPLAN.md
+AGENTS.md
 LICENSE
 assets/favicon.svg
 mixmaster.1

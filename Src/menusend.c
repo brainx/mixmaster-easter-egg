@@ -6,6 +6,7 @@
    details.
 
    Menu-based user interface -- send message
+   MODERNIZED-2026  see MODERNIZATION.md
    $Id: menusend.c 934 2006-06-24 13:40:39Z rabbi $ */
 
 
